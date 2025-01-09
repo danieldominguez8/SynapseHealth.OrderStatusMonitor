@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Models
 {
-    internal class MedicalEquipmentOrder
+    public class MedicalEquipmentOrder
     {
+        public string OrderId { get; set; } 
+        public List<MedicalEquipmentItem> MedicalEquipmentItems { get; set; } 
     }
 }
