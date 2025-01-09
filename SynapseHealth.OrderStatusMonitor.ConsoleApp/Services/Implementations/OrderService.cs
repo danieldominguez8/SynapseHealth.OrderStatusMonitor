@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using SynapseHealth.OrderStatusMonitor.ConsoleApp.Models;
 using SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Interfaces;
 
 namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
@@ -20,32 +21,26 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
             _alertService = alertService;
             _updateService = updateService;
         }
-        public async Task<JObject[]> FetchMedicalEquipmentOrdersAsync()
+        public async Task<List<MedicalEquipmentOrder>> FetchMedicalEquipmentOrdersAsync()
         {
             var response = await _httpClient.GetAsync("https://orders-api.com/orders");
             response.EnsureSuccessStatusCode();
             var ordersData = await response.Content.ReadAsStringAsync();
-            var ordersArray = JArray.Parse(ordersData).ToObject<JObject[]>();
-            return ordersArray ?? Array.Empty<JObject>();
+            var ordersArray = JArray.Parse(ordersData).ToObject<List<MedicalEquipmentOrder>>();
+            return ordersArray ?? new List<MedicalEquipmentOrder>();
         }
 
-        public async Task ProcessMedicalEquipmentOrderAsync(JObject medicalEquipmentOrder)
+        public async Task ProcessMedicalEquipmentOrderAsync(MedicalEquipmentOrder order)
         {
-            foreach (var item in medicalEquipmentOrder["Items"].ToObject<JArray>())
+            foreach (var item in order.MedicalEquipmentItems.Where(i => i.Status.Equals("Delivered", StringComparison.OrdinalIgnoreCase)))
             {
-                if (IsItemDelivered(item))
-                {
-                    var message = $"Alert for delivered item: Order {medicalEquipmentOrder["OrderId"]}, Item: {item["Description"]}";
-                    await _alertService.SendAlertAsync(message);
-                    IncrementDeliveryNotification(item);
-                }
+                var message = $"Alert for delivered item: Order {order.OrderId}, Item: {item.Description}";
+                await _alertService.SendAlertAsync(message);
+                item.DeliveryNotification++;
             }
 
-            await _updateService.UpdateMedicalEquipmentOrderAsync(medicalEquipmentOrder);
+            // Update the order after processing
+            await _updateService.UpdateMedicalEquipmentOrderAsync(order);
         }
-
-        private bool IsItemDelivered(JToken item) => item["Status"].ToString().Equals("Delivered", StringComparison.OrdinalIgnoreCase);
-
-        private void IncrementDeliveryNotification(JToken item) => item["deliveryNotification"] = item["deliveryNotification"].Value<int>() + 1;
     }
 }

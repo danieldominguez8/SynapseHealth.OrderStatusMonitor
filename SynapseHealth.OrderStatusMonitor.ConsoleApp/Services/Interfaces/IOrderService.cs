@@ -5,12 +5,13 @@ using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using SynapseHealth.OrderStatusMonitor.ConsoleApp.Models;
 
 namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Interfaces
 {
     internal interface IOrderService
     {
-        Task<JObject[]> FetchMedicalEquipmentOrdersAsync();
-        Task ProcessMedicalEquipmentOrderAsync(JObject medicalEquipmentOrder);
+        Task<List<MedicalEquipmentOrder>> FetchMedicalEquipmentOrdersAsync();
+        Task ProcessMedicalEquipmentOrderAsync(MedicalEquipmentOrder order);
     }
 }
