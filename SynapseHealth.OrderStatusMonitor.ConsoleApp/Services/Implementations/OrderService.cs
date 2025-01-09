@@ -10,14 +10,42 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
 {
     public class OrderService : IOrderService
     {
-        public Task<JObject[]> FetchMedicalEquipmentOrdersAsync()
+        private readonly HttpClient _httpClient;
+        private readonly IAlertService _alertService;
+        private readonly IUpdateService _updateService;
+
+        public OrderService(HttpClient httpClient, IAlertService alertService, IUpdateService updateService)
         {
-            throw new NotImplementedException();
+            _httpClient = httpClient;
+            _alertService = alertService;
+            _updateService = updateService;
+        }
+        public async Task<JObject[]> FetchMedicalEquipmentOrdersAsync()
+        {
+            var response = await _httpClient.GetAsync("https://orders-api.com/orders");
+            response.EnsureSuccessStatusCode();
+            var ordersData = await response.Content.ReadAsStringAsync();
+            var ordersArray = JArray.Parse(ordersData).ToObject<JObject[]>();
+            return ordersArray ?? Array.Empty<JObject>();
         }
 
-        public Task ProcessMedicalEquipmentOrderAsync(JObject medicalEquipmentOrder)
+        public async Task ProcessMedicalEquipmentOrderAsync(JObject medicalEquipmentOrder)
         {
-            throw new NotImplementedException();
+            foreach (var item in medicalEquipmentOrder["Items"].ToObject<JArray>())
+            {
+                if (IsItemDelivered(item))
+                {
+                    var message = $"Alert for delivered item: Order {medicalEquipmentOrder["OrderId"]}, Item: {item["Description"]}";
+                    await _alertService.SendAlertAsync(message);
+                    IncrementDeliveryNotification(item);
+                }
+            }
+
+            await _updateService.UpdateMedicalEquipmentOrderAsync(medicalEquipmentOrder);
         }
+
+        private bool IsItemDelivered(JToken item) => item["Status"].ToString().Equals("Delivered", StringComparison.OrdinalIgnoreCase);
+
+        private void IncrementDeliveryNotification(JToken item) => item["deliveryNotification"] = item["deliveryNotification"].Value<int>() + 1;
     }
 }

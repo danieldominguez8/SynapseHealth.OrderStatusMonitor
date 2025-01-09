@@ -10,9 +10,18 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
 {
     public class UpdateService : IUpdateService
     {
-        public Task UpdateMedicalEquipmentOrderAsync(JObject medicalEquipmentOrder)
+        private readonly HttpClient _httpClient;
+
+        public UpdateService(HttpClient httpClient)
         {
-            throw new NotImplementedException();
+            _httpClient = httpClient;
+        }
+
+        public async Task UpdateMedicalEquipmentOrderAsync(JObject order)
+        {
+            var content = new StringContent(order.ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("https://update-api.com/update", content);
+            response.EnsureSuccessStatusCode();
         }
     }
 }

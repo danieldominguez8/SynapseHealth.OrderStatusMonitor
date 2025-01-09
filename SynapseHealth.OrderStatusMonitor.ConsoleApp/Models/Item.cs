@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Models
 {
-    public class MedicalEquipmentItem
+    public class Item
     {
         public string Description { get; set; } 
         public string Status { get; set; } 
