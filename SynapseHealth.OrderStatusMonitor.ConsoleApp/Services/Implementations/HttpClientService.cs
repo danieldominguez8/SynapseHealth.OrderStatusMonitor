@@ -22,7 +22,7 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
 
         public Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content)
         {
-            return _httpClient.GetAsync(requestUri);
+            return _httpClient.PostAsync(requestUri,content);
         }
     }
 }
