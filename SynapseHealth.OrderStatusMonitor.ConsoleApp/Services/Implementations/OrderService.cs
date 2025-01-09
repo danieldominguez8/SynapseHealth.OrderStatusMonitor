@@ -11,19 +11,19 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
 {
     public class OrderService : IOrderService
     {
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientService _httpClientService;
         private readonly IAlertService _alertService;
         private readonly IUpdateService _updateService;
 
-        public OrderService(HttpClient httpClient, IAlertService alertService, IUpdateService updateService)
+        public OrderService(IHttpClientService httpClientService, IAlertService alertService, IUpdateService updateService)
         {
-            _httpClient = httpClient;
+            _httpClientService = httpClientService;
             _alertService = alertService;
             _updateService = updateService;
         }
         public async Task<List<MedicalEquipmentOrder>> FetchMedicalEquipmentOrdersAsync()
         {
-            var response = await _httpClient.GetAsync("https://orders-api.com/orders");
+            var response = await _httpClientService.GetAsync("https://orders-api.com/orders");
             response.EnsureSuccessStatusCode();
             var ordersData = await response.Content.ReadAsStringAsync();
             var ordersArray = JArray.Parse(ordersData).ToObject<List<MedicalEquipmentOrder>>();

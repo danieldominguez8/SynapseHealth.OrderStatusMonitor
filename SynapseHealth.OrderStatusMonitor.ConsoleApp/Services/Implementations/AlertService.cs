@@ -10,11 +10,11 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
 {
     public class AlertService : IAlertService
     {
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientService _httpClientService;
 
-        public AlertService(HttpClient httpClient)
+        public AlertService(IHttpClientService httpClientService)
         {
-            _httpClient = httpClient;
+            _httpClientService = httpClientService;
         }
 
         public async Task SendAlertAsync(string message)
@@ -25,7 +25,7 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
                 "application/json"
             );
 
-            var response = await _httpClient.PostAsync("https://alert-api.com/alerts", content);
+            var response = await _httpClientService.PostAsync("https://alert-api.com/alerts", content);
             response.EnsureSuccessStatusCode();
         }
     }

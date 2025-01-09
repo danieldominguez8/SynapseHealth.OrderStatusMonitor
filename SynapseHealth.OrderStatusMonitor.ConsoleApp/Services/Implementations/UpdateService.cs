@@ -11,17 +11,17 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
 {
     public class UpdateService : IUpdateService
     {
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientService _httpClientService;
 
-        public UpdateService(HttpClient httpClient)
+        public UpdateService(IHttpClientService httpClientService)
         {
-            _httpClient = httpClient;
+            _httpClientService = httpClientService;
         }
 
         public async Task UpdateMedicalEquipmentOrderAsync(MedicalEquipmentOrder order)
         {
             var content = new StringContent(order.ToString(), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync("https://update-api.com/update", content);
+            var response = await _httpClientService.PostAsync("https://update-api.com/update", content);
             response.EnsureSuccessStatusCode();
         }
     }
