@@ -29,7 +29,7 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
 
                 var orderJson = JObject.FromObject(order).ToString();
                 var content = new StringContent(orderJson, Encoding.UTF8, "application/json");
-                var response = await _httpClientService.PutAsync($"http://localhost:5131/orders/{order.id}", content);
+                var response = await _httpClientService.PutAsync($"http://localhost:3000/orders/{order.id}", content);
 
                 if (response.IsSuccessStatusCode)
                 {

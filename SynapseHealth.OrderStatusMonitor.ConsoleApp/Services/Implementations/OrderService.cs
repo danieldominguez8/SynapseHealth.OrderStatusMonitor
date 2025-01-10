@@ -29,7 +29,7 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
             try
             {
                 _logger.Information("Fetching medical equipment orders");
-                var response = await _httpClientService.GetAsync("http://localhost:5131/orders");
+                var response = await _httpClientService.GetAsync("http://localhost:3000/orders");
                 response.EnsureSuccessStatusCode();
                 var ordersData = await response.Content.ReadAsStringAsync();
                 var ordersArray = JArray.Parse(ordersData).ToObject<List<MedicalEquipmentOrder>>();
