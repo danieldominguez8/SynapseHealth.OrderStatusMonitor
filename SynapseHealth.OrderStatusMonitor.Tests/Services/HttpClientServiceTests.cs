@@ -8,6 +8,7 @@ using Moq;
 using Moq.Protected;
 using Serilog;
 using SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations;
+using static System.Net.WebRequestMethods;
 
 namespace SynapseHealth.OrderStatusMonitor.Tests.Services
 {
@@ -28,10 +29,10 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
         [Fact]
         public async Task GetAsync_ValidRequestUri_ReturnsHttpResponseMessageAndContent()
         {
-            var requestUri = "https://orders-api.com/orders";
+            var requestUri = "http://localhost:3000/orders";
             var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent("{\"OrderId\": \"1\", \"MedicalEquipmentItems\": [{\"Description\": \"Item1\", \"Status\": \"Delivered\", \"DeliveryNotification\": 1}]}")
+                Content = new StringContent("{\"id\": \"1\", \"MedicalEquipmentItems\": [{\"Description\": \"Item1\", \"Status\": \"Delivered\", \"DeliveryNotification\": 1}]}")
             };
             _httpMessageHandlerMock.Protected()
                 .Setup<Task<HttpResponseMessage>>(
@@ -59,7 +60,7 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
         [Fact]
         public async Task PostAsync_ValidRequestUriAndContent_ReturnsHttpResponseMessage()
         {
-            var requestUri = "https://update-api.com/update";
+            var requestUri = "http://localhost:3000/alerts";
             var content = new StringContent("Test content");
             var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -87,11 +88,42 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
             _loggerMock.Verify(x => x.Information("Sending POST request to {RequestUri}", requestUri), Times.Once);
             _loggerMock.Verify(x => x.Information("POST request to {RequestUri} succeeded", requestUri), Times.Once);
         }
+        [Fact]
+        public async Task PutAsync_ValidRequestUriAndContent_ReturnsHttpResponseMessage()
+        {
+            var requestUri = "http://localhost:3000/orders/1";
+            var content = new StringContent("{\"id\": \"1\", \"Items\": [{\"Description\": \"Item1\", \"Status\": \"Delivered\", \"DeliveryNotification\": 1}]}");
+            var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("{\"result\": \"success\"}")
+            };
+            _httpMessageHandlerMock.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put && req.RequestUri.ToString() == requestUri),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ReturnsAsync(responseMessage);
+
+            var result = await _httpClientService.PutAsync(requestUri, content);
+
+            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+            var responseContent = await result.Content.ReadAsStringAsync();
+            Assert.Contains("success", responseContent);
+            _httpMessageHandlerMock.Protected().Verify(
+                "SendAsync",
+                Times.Once(),
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put && req.RequestUri.ToString() == requestUri),
+                ItExpr.IsAny<CancellationToken>()
+            );
+            _loggerMock.Verify(x => x.Information("Sending PUT request to {RequestUri}", requestUri), Times.Once);
+            _loggerMock.Verify(x => x.Information("PUT request to {RequestUri} succeeded", requestUri), Times.Once);
+        }
 
         [Fact]
         public async Task GetAsync_ExceptionThrown_LogsErrorAndRethrows()
         {
-            var requestUri = "https://orders-api.com/orders";
+            var requestUri = "http://localhost:3000/orders";
             _httpMessageHandlerMock.Protected()
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
@@ -108,7 +140,7 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
         [Fact]
         public async Task PostAsync_ExceptionThrown_LogsErrorAndRethrows()
         {
-            var requestUri = "https://update-api.com/update";
+            var requestUri = "http://localhost:3000/alerts";
             var content = new StringContent("Test content");
             _httpMessageHandlerMock.Protected()
                 .Setup<Task<HttpResponseMessage>>(
@@ -121,6 +153,23 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
             var exception = await Assert.ThrowsAsync<HttpRequestException>(() => _httpClientService.PostAsync(requestUri, content));
             Assert.Equal("Network error", exception.Message);
             _loggerMock.Verify(x => x.Error(It.IsAny<Exception>(), "An error occurred while sending POST request to {RequestUri}", requestUri), Times.Once);
+        }
+        [Fact]
+        public async Task PutAsync_ExceptionThrown_LogsErrorAndRethrows()
+        {
+            var requestUri = "http://localhost:3000/orders/1";
+            var content = new StringContent("{\"id\": \"1\", \"Items\": [{\"Description\": \"Item1\", \"Status\": \"Delivered\", \"DeliveryNotification\": 1}]}");
+            _httpMessageHandlerMock.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put && req.RequestUri.ToString() == requestUri),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ThrowsAsync(new HttpRequestException("Network error"));
+
+            var exception = await Assert.ThrowsAsync<HttpRequestException>(() => _httpClientService.PutAsync(requestUri, content));
+            Assert.Equal("Network error", exception.Message);
+            _loggerMock.Verify(x => x.Error(It.IsAny<Exception>(), "An error occurred while sending PUT request to {RequestUri}", requestUri), Times.Once);
         }
     }
 }

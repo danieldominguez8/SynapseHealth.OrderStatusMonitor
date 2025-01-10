@@ -2,12 +2,11 @@
   "orders": [
     {
       "id": "9db5",
-      "OrderId": "1",
       "Items": [
         {
           "Description": "Wheelchair",
           "Status": "Delivered",
-          "DeliveryNotification": 2
+          "DeliveryNotification": 0
         },
         {
           "Description": "Hospital Bed",
@@ -18,57 +17,21 @@
     },
     {
       "id": "916d",
-      "OrderId": "2",
       "Items": [
         {
           "Description": "Crutches",
           "Status": "Delivered",
-          "DeliveryNotification": 3
+          "DeliveryNotification": 0
         },
         {
           "Description": "Oxygen Tank",
           "Status": "Pending",
-          "DeliveryNotification": 1
+          "DeliveryNotification": 0
         }
       ]
     }
   ],
   "alerts": [
-    {
-      "id": "1",
-      "message": "This is an alert for order 1."
-    },
-    {
-      "id": "c615",
-      "message": "Alert for delivered item: Order 1, Item: Wheelchair"
-    },
-    {
-      "id": "5d7b",
-      "message": "Alert for delivered item: Order 1, Item: Wheelchair"
-    },
-    {
-      "id": "24dc",
-      "Message": "Alert for delivered item: Order , Item: Wheelchair"
-    },
-    {
-      "id": "5ebf",
-      "Message": "Alert for delivered item: Order , Item: Wheelchair"
-    },
-    {
-      "id": "6d97",
-      "Message": "Alert for delivered item: Order 1, Item: Wheelchair"
-    },
-    {
-      "id": "c3bb",
-      "Message": "Alert for delivered item: Order 1, Item: Wheelchair"
-    },
-    {
-      "id": "0433",
-      "Message": "Alert for delivered item: Order 1, Item: Wheelchair"
-    },
-    {
-      "id": "5a29",
-      "Message": "Alert for delivered item: Order 2, Item: Crutches"
-    }
+
   ]
 }

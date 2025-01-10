@@ -34,7 +34,7 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
         {
             var orders = new List<MedicalEquipmentOrder>
         {
-            new MedicalEquipmentOrder { OrderId = "1", Items = new List<MedicalEquipmentItem>() }
+            new MedicalEquipmentOrder { id = "1", Items = new List<MedicalEquipmentItem>() }
         };
             var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -46,7 +46,7 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
 
             Assert.NotNull(result);
             Assert.Single(result);
-            Assert.Equal("1", result[0].OrderId);
+            Assert.Equal("1", result[0].id);
             _loggerMock.Verify(x => x.Information("Fetching medical equipment orders"), Times.Once);
             _loggerMock.Verify(x => x.Information("Successfully fetched medical equipment orders"), Times.Once);
         }
@@ -74,20 +74,21 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
         {
             var order = new MedicalEquipmentOrder
             {
-                OrderId = "1",
+                id = "1",
                 Items = new List<MedicalEquipmentItem>
-            {
-                new MedicalEquipmentItem { Description = "TestItem", Status = "Delivered", DeliveryNotification = 0 }
-            }
+                {
+                    new MedicalEquipmentItem { Description = "TestItem", Status = "Delivered", DeliveryNotification = 0 }
+                }
             };
 
             await _orderService.ProcessMedicalEquipmentOrderAsync(order);
 
-            _alertServiceMock.Verify(x => x.SendAlertAsync(It.Is<string>(s => s.Contains("TestItem"))), Times.Once);
-            _updateServiceMock.Verify(x => x.UpdateMedicalEquipmentOrderAsync(It.Is<MedicalEquipmentOrder>(o => o.OrderId == "1")), Times.Once);
+            _alertServiceMock.Verify(x => x.SendAlertAsync(It.Is<Alert>(a => a.Message.Contains("TestItem") && a.Timestamp <= DateTime.UtcNow)), Times.Once);
+            _updateServiceMock.Verify(x => x.UpdateMedicalEquipmentOrderAsync(It.Is<MedicalEquipmentOrder>(o => o.id == "1")), Times.Once);
             Assert.Equal(1, order.Items[0].DeliveryNotification);
-            _loggerMock.Verify(x => x.Information("Processing medical equipment order with ID: {OrderId}", "1"), Times.Once);
+            _loggerMock.Verify(x => x.Information("Processing medical equipment order with ID: {id}", "1"), Times.Once);
         }
+
 
         [Fact]
         public async Task FetchMedicalEquipmentOrdersAsync_ExceptionThrown_LogsErrorAndRethrows()
@@ -104,7 +105,7 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
         {
             var order = new MedicalEquipmentOrder
             {
-                OrderId = "1",
+                id = "1",
                 Items = new List<MedicalEquipmentItem>
             {
                 new MedicalEquipmentItem { Description = "TestItem", Status = "Delivered", DeliveryNotification = 0 }
@@ -114,7 +115,7 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
 
             var exception = await Assert.ThrowsAsync<HttpRequestException>(() => _orderService.ProcessMedicalEquipmentOrderAsync(order));
             Assert.Equal("Network error", exception.Message);
-            _loggerMock.Verify(x => x.Error(It.IsAny<Exception>(), "An error occurred while processing medical equipment order with ID: {OrderId}", "1"), Times.Once);
+            _loggerMock.Verify(x => x.Error(It.IsAny<Exception>(), "An error occurred while processing medical equipment order with ID: {id}", "1"), Times.Once);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
         {
             try
             {
-                _logger.Information("Updating medical equipment order with ID: {OrderId}", order.OrderId);
+                _logger.Information("Updating medical equipment order with ID: {id}", order.id);
 
                 var orderJson = JObject.FromObject(order).ToString();
                 var content = new StringContent(orderJson, Encoding.UTF8, "application/json");
@@ -33,18 +33,18 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
 
                 if (response.IsSuccessStatusCode)
                 {
-                    _logger.Information("Successfully updated medical equipment order with ID: {OrderId}", order.OrderId);
+                    _logger.Information("Successfully updated medical equipment order with ID: {id}", order.id);
                 }
                 else
                 {
-                    _logger.Error("Failed to update medical equipment order with ID: {OrderId}. Status Code: {StatusCode}", order.OrderId, response.StatusCode);
+                    _logger.Error("Failed to update medical equipment order with ID: {id}. Status Code: {StatusCode}", order.id, response.StatusCode);
                 }
 
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "An error occurred while updating medical equipment order with ID: {OrderId}", order.OrderId);
+                _logger.Error(ex, "An error occurred while updating medical equipment order with ID: {id}", order.id);
                 throw;
             }
         }

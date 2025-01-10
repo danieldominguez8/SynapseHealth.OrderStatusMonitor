@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Serilog;
+using SynapseHealth.OrderStatusMonitor.ConsoleApp.Models;
 using SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Interfaces;
 
 namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
@@ -20,14 +21,15 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
             _logger = logger;
         }
 
-        public async Task SendAlertAsync(string message)
+        public async Task SendAlertAsync(Alert alert)
         {
             try
             {
-                _logger.Information("Sending alert with message: {Message}", message);
+                _logger.Information("Sending alert with message: {Message}, timestamp: {Timestamp}",
+                    alert.Message, alert.Timestamp);
 
                 var content = new StringContent(
-                    JObject.FromObject(new { Message = message }).ToString(),
+                    JObject.FromObject(alert).ToString(),
                     Encoding.UTF8,
                     "application/json"
                 );
@@ -36,18 +38,18 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
 
                 if (response.IsSuccessStatusCode)
                 {
-                    _logger.Information("Successfully sent alert with message: {Message}", message);
+                    _logger.Information("Successfully sent alert with message: {Message}", alert.Message);
                 }
                 else
                 {
-                    _logger.Error("Failed to send alert with message: {Message}. Status Code: {StatusCode}", message, response.StatusCode);
+                    _logger.Error("Failed to send alert with message: {Message}. Status Code: {StatusCode}", alert.Message, response.StatusCode);
                 }
 
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "An error occurred while sending alert with message: {Message}", message);
+                _logger.Error(ex, "An error occurred while sending alert with message: {Message}", alert.Message);
                 throw;
             }
         }

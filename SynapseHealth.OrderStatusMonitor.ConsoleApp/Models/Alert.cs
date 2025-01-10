@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Models
 {
-    public class MedicalEquipmentOrder
+    public class Alert
     {
-        public string id { get; set; } 
-        public List<MedicalEquipmentItem> Items { get; set; } 
+        public string Message { get; set; }
+        public DateTime Timestamp { get; set; }
     }
 }

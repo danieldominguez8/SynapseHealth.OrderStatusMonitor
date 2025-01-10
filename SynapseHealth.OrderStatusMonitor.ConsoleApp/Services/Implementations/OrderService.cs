@@ -54,11 +54,15 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
         {
             try
             {
-                _logger.Information("Processing medical equipment order with ID: {OrderId}", order.OrderId);
+                _logger.Information("Processing medical equipment order with ID: {id}", order.id);
                 foreach (var item in order.Items.Where(i => i.Status.Equals("Delivered", StringComparison.OrdinalIgnoreCase)))
                 {
-                    var message = $"Alert for delivered item: Order {order.OrderId}, Item: {item.Description}";
-                    await _alertService.SendAlertAsync(message);
+                    var alert = new Alert
+                    {
+                        Message = $"Alert for delivered item: Order {order.id}, Item: {item.Description}",
+                        Timestamp = DateTime.UtcNow
+                    };
+                    await _alertService.SendAlertAsync(alert);
                     item.DeliveryNotification++;
                 }
 
@@ -66,7 +70,7 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "An error occurred while processing medical equipment order with ID: {OrderId}", order.OrderId);
+                _logger.Error(ex, "An error occurred while processing medical equipment order with ID: {id}", order.id);
                 throw;
             }
         }

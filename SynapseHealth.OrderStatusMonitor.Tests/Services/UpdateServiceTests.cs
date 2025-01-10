@@ -28,39 +28,39 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
         [Fact]
         public async Task UpdateMedicalEquipmentOrderAsync_ValidOrder_UpdatesOrder()
         {
-            var order = new MedicalEquipmentOrder { OrderId = "1", Items = new List<MedicalEquipmentItem>() };
+            var order = new MedicalEquipmentOrder { id = "1", Items = new List<MedicalEquipmentItem>() };
             var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent("{\"result\": \"success\"}")
             };
-            _httpClientServiceMock.Setup(x => x.PostAsync(It.IsAny<string>(), It.IsAny<HttpContent>())).ReturnsAsync(responseMessage);
+            _httpClientServiceMock.Setup(x => x.PutAsync(It.IsAny<string>(), It.IsAny<HttpContent>())).ReturnsAsync(responseMessage);
 
             await _updateService.UpdateMedicalEquipmentOrderAsync(order);
 
-            _httpClientServiceMock.Verify(x => x.PostAsync(It.Is<string>(s => s == "https://update-api.com/update"), It.IsAny<HttpContent>()), Times.Once);
-            _loggerMock.Verify(x => x.Information("Successfully updated medical equipment order with ID: {OrderId}", "1"), Times.Once);
+            _httpClientServiceMock.Verify(x => x.PutAsync(It.Is<string>(s => s == "http://localhost:3000/orders/1"), It.IsAny<HttpContent>()), Times.Once);
+            _loggerMock.Verify(x => x.Information("Successfully updated medical equipment order with ID: {id}", "1"), Times.Once);
         }
 
         [Fact]
         public async Task UpdateMedicalEquipmentOrderAsync_HttpClientServiceReturnsError_ThrowsException()
         {
-            var order = new MedicalEquipmentOrder { OrderId = "1", Items = new List<MedicalEquipmentItem>() };
+            var order = new MedicalEquipmentOrder { id = "1", Items = new List<MedicalEquipmentItem>() };
             var responseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-            _httpClientServiceMock.Setup(x => x.PostAsync(It.IsAny<string>(), It.IsAny<HttpContent>())).ReturnsAsync(responseMessage);
+            _httpClientServiceMock.Setup(x => x.PutAsync(It.IsAny<string>(), It.IsAny<HttpContent>())).ReturnsAsync(responseMessage);
 
             await Assert.ThrowsAsync<HttpRequestException>(() => _updateService.UpdateMedicalEquipmentOrderAsync(order));
-            _loggerMock.Verify(x => x.Error("Failed to update medical equipment order with ID: {OrderId}. Status Code: {StatusCode}", "1", HttpStatusCode.BadRequest), Times.Once);
+            _loggerMock.Verify(x => x.Error("Failed to update medical equipment order with ID: {id}. Status Code: {StatusCode}", "1", HttpStatusCode.BadRequest), Times.Once);
         }
 
         [Fact]
         public async Task UpdateMedicalEquipmentOrderAsync_ExceptionThrown_LogsErrorAndRethrows()
         {
-            var order = new MedicalEquipmentOrder { OrderId = "1", Items = new List<MedicalEquipmentItem>() };
-            _httpClientServiceMock.Setup(x => x.PostAsync(It.IsAny<string>(), It.IsAny<HttpContent>())).ThrowsAsync(new HttpRequestException("Network error"));
+            var order = new MedicalEquipmentOrder { id = "1", Items = new List<MedicalEquipmentItem>() };
+            _httpClientServiceMock.Setup(x => x.PutAsync(It.IsAny<string>(), It.IsAny<HttpContent>())).ThrowsAsync(new HttpRequestException("Network error"));
 
             var exception = await Assert.ThrowsAsync<HttpRequestException>(() => _updateService.UpdateMedicalEquipmentOrderAsync(order));
             Assert.Equal("Network error", exception.Message);
-            _loggerMock.Verify(x => x.Error(It.IsAny<Exception>(), "An error occurred while updating medical equipment order with ID: {OrderId}", "1"), Times.Once);
+            _loggerMock.Verify(x => x.Error(It.IsAny<Exception>(), "An error occurred while updating medical equipment order with ID: {id}", "1"), Times.Once);
         }
     }
 }
