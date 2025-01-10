@@ -8,6 +8,7 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Models
 {
     public class MedicalEquipmentOrder
     {
+        public string id { get; set; } 
         public string OrderId { get; set; } 
         public List<MedicalEquipmentItem> Items { get; set; } 
     }

@@ -32,7 +32,7 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
                     "application/json"
                 );
 
-                var response = await _httpClientService.PostAsync("http://localhost:5131/api/alerts", content);
+                var response = await _httpClientService.PostAsync("http://localhost:5131/alerts", content);
 
                 if (response.IsSuccessStatusCode)
                 {
