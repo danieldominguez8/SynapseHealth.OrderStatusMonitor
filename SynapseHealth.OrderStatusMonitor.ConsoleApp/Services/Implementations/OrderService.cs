@@ -29,7 +29,7 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
             try
             {
                 _logger.Information("Fetching medical equipment orders");
-                var response = await _httpClientService.GetAsync("https://orders-api.com/orders");
+                var response = await _httpClientService.GetAsync("http://localhost:5131/api/orders");
                 response.EnsureSuccessStatusCode();
                 var ordersData = await response.Content.ReadAsStringAsync();
                 var ordersArray = JArray.Parse(ordersData).ToObject<List<MedicalEquipmentOrder>>();
@@ -55,7 +55,7 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
             try
             {
                 _logger.Information("Processing medical equipment order with ID: {OrderId}", order.OrderId);
-                foreach (var item in order.MedicalEquipmentItems.Where(i => i.Status.Equals("Delivered", StringComparison.OrdinalIgnoreCase)))
+                foreach (var item in order.Items.Where(i => i.Status.Equals("Delivered", StringComparison.OrdinalIgnoreCase)))
                 {
                     var message = $"Alert for delivered item: Order {order.OrderId}, Item: {item.Description}";
                     await _alertService.SendAlertAsync(message);

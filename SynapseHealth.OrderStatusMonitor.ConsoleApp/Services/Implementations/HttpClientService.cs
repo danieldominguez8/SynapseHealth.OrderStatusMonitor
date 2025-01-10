@@ -64,5 +64,27 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
                 throw;
             }
         }
+        public async Task<HttpResponseMessage> PutAsync(string requestUri, HttpContent content)
+        {
+            try
+            {
+                _logger.Information("Sending PUT request to {RequestUri}", requestUri);
+                var response = await _httpClient.PutAsync(requestUri, content);
+                if (response.IsSuccessStatusCode)
+                {
+                    _logger.Information("PUT request to {RequestUri} succeeded", requestUri);
+                }
+                else
+                {
+                    _logger.Error("PUT request to {RequestUri} failed with status code {StatusCode}", requestUri, response.StatusCode);
+                }
+                return response;
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.Error(ex, "An error occurred while sending PUT request to {RequestUri}", requestUri);
+                throw;
+            }
+        }
     }
 }

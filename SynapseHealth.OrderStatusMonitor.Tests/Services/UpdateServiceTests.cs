@@ -28,7 +28,7 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
         [Fact]
         public async Task UpdateMedicalEquipmentOrderAsync_ValidOrder_UpdatesOrder()
         {
-            var order = new MedicalEquipmentOrder { OrderId = "1", MedicalEquipmentItems = new List<MedicalEquipmentItem>() };
+            var order = new MedicalEquipmentOrder { OrderId = "1", Items = new List<MedicalEquipmentItem>() };
             var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent("{\"result\": \"success\"}")
@@ -44,7 +44,7 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
         [Fact]
         public async Task UpdateMedicalEquipmentOrderAsync_HttpClientServiceReturnsError_ThrowsException()
         {
-            var order = new MedicalEquipmentOrder { OrderId = "1", MedicalEquipmentItems = new List<MedicalEquipmentItem>() };
+            var order = new MedicalEquipmentOrder { OrderId = "1", Items = new List<MedicalEquipmentItem>() };
             var responseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
             _httpClientServiceMock.Setup(x => x.PostAsync(It.IsAny<string>(), It.IsAny<HttpContent>())).ReturnsAsync(responseMessage);
 
@@ -55,7 +55,7 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
         [Fact]
         public async Task UpdateMedicalEquipmentOrderAsync_ExceptionThrown_LogsErrorAndRethrows()
         {
-            var order = new MedicalEquipmentOrder { OrderId = "1", MedicalEquipmentItems = new List<MedicalEquipmentItem>() };
+            var order = new MedicalEquipmentOrder { OrderId = "1", Items = new List<MedicalEquipmentItem>() };
             _httpClientServiceMock.Setup(x => x.PostAsync(It.IsAny<string>(), It.IsAny<HttpContent>())).ThrowsAsync(new HttpRequestException("Network error"));
 
             var exception = await Assert.ThrowsAsync<HttpRequestException>(() => _updateService.UpdateMedicalEquipmentOrderAsync(order));

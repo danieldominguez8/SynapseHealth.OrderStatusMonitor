@@ -10,5 +10,6 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Interfaces
     {
         Task<HttpResponseMessage> GetAsync(string requestUri);
         Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content);
+        Task<HttpResponseMessage> PutAsync(string requestUri, HttpContent content);
     }
 }

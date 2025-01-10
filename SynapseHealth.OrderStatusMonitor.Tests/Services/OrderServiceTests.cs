@@ -34,7 +34,7 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
         {
             var orders = new List<MedicalEquipmentOrder>
         {
-            new MedicalEquipmentOrder { OrderId = "1", MedicalEquipmentItems = new List<MedicalEquipmentItem>() }
+            new MedicalEquipmentOrder { OrderId = "1", Items = new List<MedicalEquipmentItem>() }
         };
             var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -75,7 +75,7 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
             var order = new MedicalEquipmentOrder
             {
                 OrderId = "1",
-                MedicalEquipmentItems = new List<MedicalEquipmentItem>
+                Items = new List<MedicalEquipmentItem>
             {
                 new MedicalEquipmentItem { Description = "TestItem", Status = "Delivered", DeliveryNotification = 0 }
             }
@@ -85,7 +85,7 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
 
             _alertServiceMock.Verify(x => x.SendAlertAsync(It.Is<string>(s => s.Contains("TestItem"))), Times.Once);
             _updateServiceMock.Verify(x => x.UpdateMedicalEquipmentOrderAsync(It.Is<MedicalEquipmentOrder>(o => o.OrderId == "1")), Times.Once);
-            Assert.Equal(1, order.MedicalEquipmentItems[0].DeliveryNotification);
+            Assert.Equal(1, order.Items[0].DeliveryNotification);
             _loggerMock.Verify(x => x.Information("Processing medical equipment order with ID: {OrderId}", "1"), Times.Once);
         }
 
@@ -105,7 +105,7 @@ namespace SynapseHealth.OrderStatusMonitor.Tests.Services
             var order = new MedicalEquipmentOrder
             {
                 OrderId = "1",
-                MedicalEquipmentItems = new List<MedicalEquipmentItem>
+                Items = new List<MedicalEquipmentItem>
             {
                 new MedicalEquipmentItem { Description = "TestItem", Status = "Delivered", DeliveryNotification = 0 }
             }

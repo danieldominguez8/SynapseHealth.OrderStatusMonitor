@@ -28,7 +28,7 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
                 _logger.Information("Updating medical equipment order with ID: {OrderId}", order.OrderId);
 
                 var content = new StringContent(order.ToString(), Encoding.UTF8, "application/json");
-                var response = await _httpClientService.PostAsync("https://update-api.com/update", content);
+                var response = await _httpClientService.PutAsync($"http://localhost:5131/api/orders/{order.OrderId}", content);
 
                 if (response.IsSuccessStatusCode)
                 {
