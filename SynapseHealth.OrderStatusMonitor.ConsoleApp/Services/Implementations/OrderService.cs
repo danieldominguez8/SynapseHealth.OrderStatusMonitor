@@ -29,7 +29,8 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
             try
             {
                 _logger.Information("Fetching medical equipment orders");
-                var response = await _httpClientService.GetAsync("http://localhost:3000/orders");
+                var response = await _httpClientService.GetAsync("https://dandav8.mockmaster.io/synapsehealthmockapi/order"); //Mock API
+                //var response = await _httpClientService.GetAsync("http://localhost:3000/orders"); //json-server api
                 response.EnsureSuccessStatusCode();
                 var ordersData = await response.Content.ReadAsStringAsync();
                 var ordersArray = JArray.Parse(ordersData).ToObject<List<MedicalEquipmentOrder>>();

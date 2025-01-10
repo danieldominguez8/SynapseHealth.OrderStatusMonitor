@@ -34,7 +34,8 @@ namespace SynapseHealth.OrderStatusMonitor.ConsoleApp.Services.Implementations
                     "application/json"
                 );
 
-                var response = await _httpClientService.PostAsync("http://localhost:3000/alerts", content);
+                var response = await _httpClientService.PostAsync("https://dandav8.mockmaster.io/synapsehealthmockapi/alerts", content); //mock api
+                //var response = await _httpClientService.PostAsync("http://localhost:3000/alerts", content); //json-server api
 
                 if (response.IsSuccessStatusCode)
                 {
